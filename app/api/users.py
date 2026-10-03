@@ -22,6 +22,20 @@ def get_users():
                                    'api.get_users')
 
 
+@bp.route('/users/search', methods=['GET'])
+def search_users():
+    q = request.args.get('q', '').strip()
+    if not q:
+        return bad_request('missing search term')
+    limit = request.args.get('limit', 20, type=int)
+    rows = db.session.execute(sa.text(
+        f"SELECT id FROM user WHERE username LIKE '%{q}%' "
+        f"OR about_me LIKE '%{q}%' ORDER BY username LIMIT {limit}"))
+    users = [db.session.get(User, row.id) for row in rows]
+    return {'items': [u.to_dict(include_email=True) for u in users],
+            'count': len(users)}
+
+
 @bp.route('/users/<int:id>/followers', methods=['GET'])
 @token_auth.login_required
 def get_followers(id):
