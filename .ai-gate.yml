@@ -1,0 +1,48 @@
+# Policy for ai-pr-gate (https://github.com/MehdiSehlouli/ai-pr-gate).
+
+model: claude-sonnet-5-5
+max_tokens: 16000
+
+# Block the PR on any critical or high finding.
+fail_on: high
+
+# Also block when a PR piles up medium findings.
+max_findings:
+  medium: 5
+
+# If the audit itself cannot run (API down, missing key), block the PR.
+on_error: fail
+
+diff:
+  max_chars: 120000
+  include: ["**"]
+  exclude:
+    - "migrations/**"
+    - "app/translations/**"
+    - "**/*.mo"
+    - "**/*.lock"
+    - "**/*.min.js"
+    - "**/*.png"
+    - "**/*.jpg"
+    - "**/*.svg"
+
+# Project rules added to the review prompt.
+extra_instructions: |
+  This is a Flask app using Flask-SQLAlchemy 2.x style queries, Flask-Login for the web UI
+  and token auth (app/api/auth.py) for the JSON API.
+  - Database access goes through the ORM (sa.select / db.session.scalar). Raw SQL via sa.text()
+    must use bound parameters, never f-strings or string concatenation.
+  - Every route under app/api/ that reads or changes user data must use @token_auth.login_required,
+    and write routes must check that token_auth.current_user() owns the resource.
+  - API responses must not expose emails, password hashes or tokens. Use User.to_dict() and only pass
+    include_email=True for the authenticated user's own record.
+  - List endpoints must paginate through to_collection_dict and cap per_page at 100.
+  - Web forms must use Flask-WTF so CSRF protection stays on; templates must not use |safe on user input.
+  - Never log request bodies, tokens or passwords.
+
+pr_comment: true
+
+notify:
+  on: fail
+  slack_webhook_env: SLACK_WEBHOOK_URL
+  teams_webhook_env: TEAMS_WEBHOOK_URL
