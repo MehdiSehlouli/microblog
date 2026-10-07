@@ -1,4 +1,4 @@
-# Claude-powered security and quality gate for pull requests (https://github.com/MehdiSehlouli/ai-pr-gate).
+# LLM-powered (Groq) security and quality gate for pull requests (https://github.com/MehdiSehlouli/ai-pr-gate).
 # Make "AI quality gate" a required status check on main so failed PRs can't be merged.
 name: AI quality gate
 
@@ -26,9 +26,9 @@ jobs:
         with:
           fetch-depth: 0 # the gate diffs against the merge base
 
-      - uses: MehdiSehlouli/ai-pr-gate@v0.1.0
+      - uses: MehdiSehlouli/ai-pr-gate@v0.2.0
         with:
-          anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+          groq-api-key: ${{ secrets.GROQ_API_KEY }}
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
           TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}

@@ -1,6 +1,7 @@
 # Policy for ai-pr-gate (https://github.com/MehdiSehlouli/ai-pr-gate).
 
-model: claude-sonnet-5-5
+provider: groq
+model: qwen/qwen3.8-27b
 max_tokens: 16000
 
 # Block the PR on any critical or high finding.
